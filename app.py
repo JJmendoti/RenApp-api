@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify, request, session, redirect, url_for
 import pymongo
-from bson import objectid
+from bson import ObjectId
 from bson.json_util import dumps, loads
 import os
 from werkzeug.utils import secure_filename
@@ -34,22 +34,20 @@ def user_by_id(id):
             query = {"_id": ObjectId(id)}
             result = userCollection.find_one(query)
             if result:
-                return jsonify(result)
+                json_data = dumps(result)
+                return json_data
             else:
                 return jsonify({'status':'404'})
 
-# @app.route('/user/<id>',methods=['DELETE'])
-# def delete_user(id):
-#     try:  
+@app.route('/user/<id>',methods=['DELETE'])
+def delete_user(id):
+        query = {"_id": ObjectId(id)}
+        delete = userCollection.delete_one(query)
+        if delete:
+            return jsonify({'status':'200'})
+        else:
+            return jsonify({'status':'400'})
 
-#         query = {"_id": ObjectId(id)}
-#         delete = userCollection.delete_one(query)
-#         if delete:
-#             return render_template("index.html", delete = True)
-#         else:
-#             return render_template("index.html", delete = False)
-#     except:
-#         return redirect(url_for("404"))
 
 @app.route('/user', methods=['POST'])
 def send_user():
@@ -67,102 +65,92 @@ def send_user():
     else:
         return jsonify({"status": "400"})
 
-# @app.route('/user/<id>', methods=['PUT'])
-# def up_user(id):
-#     try:
-#         query = {"_id": ObjectId(id)}
-#         name = request.form.get('name')
-#         ident =request.form.get('ident')
-#         email = request.form.get('email')
-#         country = request.form.get('country')
-#         f = request.files['avatar']
-#         filename = secure_filename(f.filename)
-#         f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-#         city = request.form.get('city')
-#         password = request.form.get('password')
-#         user = {"$set":{"name": name, "ident":ident, "email": email, "avatar": filename, "country": country, "city": city, "password":password}}
-#         update = userCollection.update_one(query, user)
-#         if update:
-#             return render_template("signup.html", status = True)
-#         else:
-#             return render_template("signup.html", status = False)
-#     except:
-#         return render_template("404.html")
+@app.route('/user/<id>', methods=['PUT'])
+def up_user(id):
+        query = {"_id": ObjectId(id)}
+        name = request.json['name']
+        ident =request.json['identification']
+        email = request.json['email']
+        country = request.json['country']
+        city = request.json['city']
+        password = request.json['password']
+        user = {"$set":{"name": name, "ident":ident, "email": email,"country": country, "city": city, "password":password}}
+        update = userCollection.update_one(query, user)
+        if update:
+            return jsonify({"status": "200"})
+        else:
+            return jsonify({"status": "400"})
      
 # # #esquema y rutas de propietarios
 
 
 
-# @app.route('/onwer/', methods=['GET'])
-# def onwer():
-#     result = onwerCollection.find()
-#     if result:
-#         return render_template("allOnwer.html", data=result)
-#     else:
-#         return render_template("404.html")
-
-# @app.route('/onwer/<id>',methods=['GET'])
-# def onwer_by_id(id):
-#         query = {"_id": ObjectId(id)}
-#         result = onwerCollection.find_one(query)
-#         if result:
-#             return render_template("homeOnwer.html", data = result)
-#         else: 
-#             return render_template("404.html")
+@app.route('/onwer/', methods=['GET'])
+def onwer():
+    result = onwerCollection.find()
+    if result:
+        list_data = list(result)
+        json_data = dumps(list_data)
+        return json_data
+    else:
+        return jsonify({'status':'404'})
 
 
-# @app.route('/onwer/<id>',methods=['DELETE'])
-# def delete_onwer(id):
-#     try:  
-#         query = {"_id": ObjectId(id)}
-#         delete = onwerCollection.delete_one(query)
-#         if delete:
-#             return render_template("index.html", delete = True)
-#         else:
-#             return render_template("index.html", delete = False)
-#     except:
-#         return render_template("404.html")
-
-# @app.route('/onwer', methods=['POST'])
-# def send_onwer():
-#     name = request.form.get('name')
-#     ident =request.form.get('identification')
-#     email = request.form.get('email')
-#     country = request.form.get('country')
-#     f = request.files['avatar']
-#     filename = secure_filename(f.filename)
-#     f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-#     city = request.form.get('city')
-#     password = request.form.get('password')
-#     user = {"name": name, "ident":ident, "email": email, "avatar": filename, "country": country, "city": city, "password":password}
-#     save = onwerCollection.insert_one(user)
-#     if save:
-#         return render_template("signup.html", status = "Y")
-#     else:
-#        return render_template("signup.html", status = "E")
+@app.route('/onwer/<id>',methods=['GET'])
+def onwer_by_id(id):
+        query = {"_id": ObjectId(id)}
+        result = onwerCollection.find_one(query)
+        if result:
+            json_data = dumps(result)
+            return json_data
+        else:
+            return jsonify({'status':'404'})
 
 
-# @app.route('/onwer/<id>', methods=['PUT'])
-# def up_onwer(id):
-#      try:
-#         query = {"_id": ObjectId(id)}
-#         name = request.form.get('name')
-#         ident =request.form.get('ident')
-#         email = request.form.get('email')
-#         country = request.form.get('country')
-#         f = request.files['avatar']
-#         filename = secure_filename(f.filename)
-#         f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-#         city = request.form.get('city')
-#         password = request.form.get('password')
-#         user = {"$set":{"name": name, "ident":ident, "email": email, "avatar": filename, "country": country, "city": city, "password":password}}
-#         update = onwerCollection.update_one(query, user)
-#         if update:
-#             return render_template("signup.html", status = True)
-#         else:
-#             return render_template("signup.html", status = False)
-#      except:
-#         return render_template("404.html")
+@app.route('/onwer/<id>',methods=['DELETE'])
+def delete_onwer(id):
+        query = {"_id": ObjectId(id)}
+        delete = onwerCollection.delete_one(query)
+        if delete:
+            return jsonify({'status':'200'})
+        else:
+            return jsonify({'status':'400'})
+
+@app.route('/onwer', methods=['POST'])
+def send_onwer():
+    name = request.json['name']
+    ident =request.json['identification']
+    email = request.json['email']
+    country = request.json['country']
+    city = request.json['city']
+    password = request.json['password']
+    user = {"name": name, "ident":ident, "email": email , "country": country, "city": city, "password":password}
+    save = onwerCollection.insert_one(user)
+    if save:
+        return jsonify({"status": "200"})
+    else:
+        return jsonify({"status": "400"})
+
+
+
+@app.route('/onwer/<id>', methods=['PUT'])
+def up_onwer(id):
+        query = {"_id": ObjectId(id)}
+        name = request.json['name']
+        ident =request.json['identification']
+        email = request.json['email']
+        country = request.json['country']
+        city = request.json['city']
+        password = request.json['password']
+        user = {"$set":{"name": name, "ident":ident, "email": email,"country": country, "city": city, "password":password}}
+        update = onwerCollection.update_one(query, user)
+        if update:
+            return jsonify({"status": "200"})
+        else:
+            return jsonify({"status": "400"})
+
+
+
 
 # @app.route('/onwer-apartment/<id>',methods=['GET'])
 # def onwer_apartment(id):
@@ -176,102 +164,77 @@ def send_user():
 # # #esquema y rutas de apartamentos
 
 
-# @app.route('/apartment/', methods=['GET'])
-# def apartment():
-#     result = apartmentsCollection.find()
-#     if result:
-#         return render_template("allApartments.html", data=result)
-#     else:
-#         return render_template("404.html")
+@app.route('/apartment/', methods=['GET'])
+def apartment():
+    result = apartmentsCollection.find()
+    if result:
+        list_data = list(result)
+        json_data = dumps(list_data)
+        return json_data
+    else:
+        return jsonify({'status':'404'})   
 
 
-# @app.route('/apartment/<id>',methods=['GET'])
-# def apartment_by_id(id):
-#         query = {"_id": ObjectId(id)}
-#         result = apartmentsCollection.find_one(query)
-#         if result:
-#             return render_template("viewApartment.html", data = result)
-#         else: 
-#             return render_template("404.html")
+@app.route('/apartment/<id>',methods=['GET'])
+def apartment_by_id(id):
+        query = {"_id": ObjectId(id)}
+        result = apartmentsCollection.find_one(query)
+        if result:
+            json_data = dumps(result)
+            return json_data
+        else:
+            return jsonify({'status':'404'})
 
-# # @app.route('/apartment/onwer/<id>',methods=['GET'])
-# # def apartment_user_by_id(id):
-# #         query = {"_id": ObjectId(id)}
-# #         apartment = Apartment.query.filter_by(idonwer = id)
-# #         result = apartments_schema.dump(apartment)
-# #         if result:
-# #             return jsonify(result)
-# #         else:
-# #             return jsonify({'status':'404'})
 
-# @app.route('/delete-apartment',methods=['POST'])
-# def delete_apartment():
-#     try:  
-#         id = request.form.get('id')
-#         query = {"_id": ObjectId(id)}
-#         delete = apartmentsCollection.delete_one(query)
-#         if delete.deleted_count > 0:
-#             return redirect(url_for('homeonwer'))
-#         else:
-#             return redirect(url_for('index'))
-#     except:
-#         return render_template("404.html")
+@app.route('/delete-apartment/<id>',methods=['DELETE'])
+def delete_apartment(id):
+        query = {"_id": ObjectId(id)}
+        delete = apartmentsCollection.delete_one(query)
+        if delete:
+            return jsonify({'status':'200'})
+        else:
+            return jsonify({'status':'400'})
 
 
 
-# @app.route('/apartment', methods=['POST'])
-# def send_apartment():
-#     name = request.form.get('title')
-#     idonwer = request.form.get('idonwer')
-#     location = request.form.get('location')
-#     assessment = 1
-#     country = request.form.get('country')
-#     city = request.form.get('city')
-#     address = request.form.get('address')
-#     images = request.files.getlist('images[]')
-#     names_img = []
-#     for image in images:
-#         image.save(os.path.join(app.config['UPLOAD_FOLDER'], image.filename))   
-#         names_img.append(image.filename) 
-#     image_featured = request.files['outstandingImage']
-#     image_featured_name = secure_filename(image_featured.filename)
-#     image_featured.save(os.path.join(app.config['UPLOAD_FOLDER'], image_featured_name))
-#     nigth_value = request.form.get('nightValue')
-#     review = request.form.get('review')
-#     apartment = {"idonwer": idonwer, "name":name, "address": address, "assessment": assessment, "location": location, "country": country, "city": city, "image":names_img, "image_featured": image_featured_name, "nigth_value":nigth_value, "review":review}
-#     save = apartmentsCollection.insert_one(apartment)
-#     if save:
-#         return render_template("addapartament.html", status = "Y")
-#     else:
-#        return render_template("addapartament.html", status = "E")
+@app.route('/apartment', methods=['POST'])
+def send_apartment():
+    name = request.json['title']
+    idonwer = request.json['idonwer']
+    location = request.json['location']
+    assessment = 1
+    country = request.json['country']
+    city = request.json['city']
+    address = request.json['address']
+    nigth_value = request.json['nigth_value']
+    review = request.json['review']
+    apartment = {"idonwer": idonwer, "name":name, "address": address, "assessment": assessment, "location": location, "country": country, "city": city, "nigth_value":nigth_value, "review":review}
+    save = apartmentsCollection.insert_one(apartment)
+    if save:
+        return jsonify({"status": "200"})
+    else:
+        return jsonify({"status": "400"})
 
-# @app.route('/apartment-update/', methods=['POST'])
-# def up_apartment():
-#     ide = request.form.get('id')
-#     query = {"_id": ObjectId(ide)}
-#     name = request.form.get('title')
-#     idonwer = request.form.get('idonwer')
-#     location = request.form.get('location')
-#     assessment = 1
-#     country = request.form.get('country')
-#     city = request.form.get('city')
-#     address = request.form.get('address')
-#     images = request.files.getlist('images[]')
-#     names_img = []
-#     for image in images:
-#         image.save(os.path.join(app.config['UPLOAD_FOLDER'], image.filename))   
-#         names_img.append(image.filename) 
-#     image_featured = request.files['outstandingImage']
-#     image_featured_name = secure_filename(image_featured.filename)
-#     image_featured.save(os.path.join(app.config['UPLOAD_FOLDER'], image_featured_name))
-#     nigth_value = request.form.get('nightValue')
-#     review = request.form.get('review')
-#     apartment = {"idonwer": idonwer, "name":name, "address": address, "assessment": assessment, "location": location, "country": country, "city": city, "image":names_img, "image_featured": image_featured_name, "nigth_value":nigth_value, "review":review}
-#     save = apartmentsCollection.update_one(query,apartment)
-#     if save:
-#         return render_template("addapartament.html", status = True)
-#     else:
-#        return render_template("addapartament.html", status = False)
+
+
+@app.route('/apartment/<id>', methods=['PUT'])
+def up_apartment(id):
+    query = {"_id": ObjectId(id)}
+    name = request.json['title']
+    idonwer = request.json['idonwer']
+    location = request.json['location']
+    assessment = 1
+    country = request.json['country']
+    city = request.json['city']
+    address = request.json['address']
+    nigth_value = request.json['nigth_value']
+    review = request.json['review']
+    apartment = {"$set":{"idonwer": idonwer, "name":name, "address": address, "assessment": assessment, "location": location, "country": country, "city": city, "nigth_value":nigth_value, "review":review}}
+    update = apartmentsCollection.update_one(query, apartment)
+    if update:
+        return jsonify({"status": "200"})
+    else:
+        return jsonify({"status": "400"})
 
 
 # @app.route('/signinuser', methods=['POST'])
