@@ -4,7 +4,7 @@ from bson import ObjectId
 from bson.json_util import dumps, loads
 import os
 from werkzeug.utils import secure_filename
-from flask_cors import CORS
+# from flask_cors import CORS
 
 #se crea copnexion a base datos
 myClient = pymongo.MongoClient("mongodb://admin-rentapp:rentapp12345@rentapp-shard-00-00.iqoc1.mongodb.net:27017,rentapp-shard-00-01.iqoc1.mongodb.net:27017,rentapp-shard-00-02.iqoc1.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-viqn5b-shard-0&authSource=admin&retryWrites=true&w=majority")
@@ -16,7 +16,7 @@ onwerCollection = myDB["onwer"]
 userCollection = myDB["user"]
 
 app = Flask(__name__)
-CORS(app)
+# CORS(app)
 app.config['UPLOAD_FOLDER'] = './static/img/uploads'
 # app.secret_key = 'werwetwryteurturtrtyrtyrtyQQy4613874'
 
@@ -272,4 +272,4 @@ def signinuser():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8001)
+    app.run()
